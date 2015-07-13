@@ -23,45 +23,45 @@ def run_process(exe):
             break
 
 
-def add_stats(metrics, device, statistics):
-    dev_stats = [device + '_' + stat for stat in statistics]
-    metrics.append(dev_stats)
-
-
 def get_metrics():
-    metrics = []
+    metrics = {}
     for line in run_process(CMD):
         stats = line.split()
-        if len(fields) and fields[0].startswith('sd'):
-            dev_name = stats[0]
-            stats_for_dev = stats[1:]
-            add_stats(metrics, dev_name, stats_for_dev)
+        if len(stats) and stats[0].startswith('sd'):
+            device_name = stats[0]
+            for idx in xrange(1, len(FIELD_NAMES)): # No device name
+                metrics[device_name + ' ' + FIELD_NAMES[idx]] = stats[idx]
+    # Here we have matrix of metrics :-)
+    pprint(metrics)
     return metrics
 
 
-def get_indexes(stats, metrics):
-    idxs = []
-    for metric in metrics:
+def print_metrics(metrics, stats):
+    metrics_to_print = []
+    for key in metrics.keys():
         for stat in stats:
-            if stat in metric:
-                idxs.append(metrics.index(metric))
-    return idxs
-
-
-def print_metrics(metrics, metrics_idxs):
-    print([metrics[idx] for idx in metrics_idxs])
+            if stat in key:
+                metrics_to_print.append(metrics[key])
+    metrics_to_print.sort()
+    print([metrics[stat] for stat in metrics_to_print])
 
 
 def main():
     while True:
         try:
+            stats_to_collect = ['util', 'kB/s']
             metrics = get_metrics()
-            stats_to_print = ['util', 'kB/s']
-            idxs = get_indexes(stats_to_print, metrics)
-            print_metrics(metrics, idxs)
+            print_metrics(metrics, stats_to_collect)
         except KeyboardInterrupt:
             exit()
 
+"""
+1. Get all lines
+2. Get header of requested stats
+2. If header not printed, print it
+2. Create list all device_metrics
+3. Print only those requested
+"""
 
 if __name__ == "__main__":
     main()

@@ -21,12 +21,13 @@ def get_timestamp():
 
 def main():
     cluster = Cluster()
-    session = cluster.connect('casssa')
+    session = cluster.connect(KEYSPACE)
     
     metrics = [
-        "mapnocc_updates_sent",
+        "app_updates_sent",
         "postgresql_wal_delay",
-        "postgresql_buffer_utilization"
+        "postgresql_buffer_utilization",
+        "connection_jitter"
     ]
     
     if TEST:
